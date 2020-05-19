@@ -1,6 +1,12 @@
 import React, {useState} from 'react';
+import * as yup from 'yup';
 
-
+const formSchema = yup.object().shape({
+    name: yup.string().required(),
+    email: yup.string().email().required(),
+    password: yup.string().password().required(),
+    terms: yup.boolean().oneOf([true])
+})
 
 const Form = () => {
     const [formState, setFormState] = useState({
@@ -13,6 +19,8 @@ const Form = () => {
     //onSubmit function
     const formSubmit = (e) => {
         e.preventDefault();
+
+        setFormState({name: "", email: "", password: "", terms: false})
     }
 
     //onChange function
@@ -25,13 +33,13 @@ const Form = () => {
 
     return(
         <div>
-            <form>
-                <input type="text" name="name" placeholder="Name:"></input>
-                <input type ="text" name="email" placeholder="Email:"></input>
-                <input type = "text" name="password" placeholder="Password:"></input>
+            <form onSubmit = {formSubmit}>
+                <input type="text" name="name"  value = {formState.name} onChange = {inputChange} placeholder = "Name:"></input>
+                <input type ="text" name="email"  value = {formState.email} onChange = {inputChange} placeholder = "Email:"></input>
+                <input type = "text" name="password" value = {formState.password} onChange = {inputChange} placeholder = "Password:"></input>
                 <label htmlFor = "terms">
                   I have read the Terms and Conditions:
-                  <input type = "checkbox" id = "terms" name = "terms"/>
+                  <input type = "checkbox" id = "terms" name = "terms" value = {formState} onChange = {inputChange}/>
                   <button type="button">Submit</button>
                 </label>
             </form>
