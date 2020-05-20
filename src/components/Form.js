@@ -1,11 +1,13 @@
 import React, {useState} from 'react';
 import * as yup from 'yup';
+import axios from "axios";
+import User from "./User";
 
 const formSchema = yup.object().shape({
     name: yup.string().required("dude, put your name in"),
-    email: yup.string().email().required("That's not a real email, shitbag"),
+    email: yup.string().email("That's not a real email").required("That's not a real email, shitbag"),
     password: yup.string(),
-    terms: yup.boolean().oneOf([true], "Oh, so you disagree? Get the hell out of here")
+    terms: yup.boolean().oneOf([true], "Check the box dog")
 })
 
 const Form = () => {
@@ -24,28 +26,41 @@ const Form = () => {
         terms: ""
     })
 
-    const validate = (e) => {
-        yup.reach(formSchema, e.target.name)
-        .validate(e.target.value)
-        .then(valid => {
+    //User State
+    const [user, setUser] = useState([])
+
+    const validate = e => {
+        let value =
+          e.target.type === "checkbox" ? e.target.checked : e.target.value;
+        yup
+          .reach(formSchema, e.target.name)
+          .validate(value)
+          .then(valid => {
             SetErrors({
-                ...errors,
-                [e.target.name]: ""
-            })
-        })
-        .catch(err => {
-            // console.log(err.errors)
+              ...errors,
+              [e.target.name]: ""
+            });
+          })
+          .catch(err => {
             SetErrors({
-                ...errors,
-                [e.target.name]:err.errors[0]
-            })
-        })
-    }
+              ...errors,
+              [e.target.name]: err.errors[0]
+            });
+          });
+      };
+    
+
+
+    
 
     //onSubmit function
     const formSubmit = (e) => {
         e.preventDefault();
-
+        
+        axios
+      .post("https://reqres.in/api/users", formState)
+      .then(response => setUser(response.data))
+      .catch(err => console.log(err));
       
     }
 
@@ -61,6 +76,7 @@ const Form = () => {
     }
 
 
+
     return(
         <div>
             <form onSubmit = {formSubmit}>
@@ -73,9 +89,10 @@ const Form = () => {
                   I have read the Terms and Conditions:
                   <input type = "checkbox" id = "terms" name = "terms" value = {formState.terms} onChange = {inputChange}/>
                  {errors.terms.length > 0 ? <p>{errors.terms}</p>: null }
-                  <button type="button">Submit</button>
+                  <button>Submit</button>
                 </label>
             </form>
+            <User user = {user}/>
         </div>
     )
 
